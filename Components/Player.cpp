@@ -287,29 +287,35 @@ bool CPlayerComponent::IsCapsuleIntersectingGeometry(const primitives::capsule& 
 
 bool CPlayerComponent::IsWallLeft() const
 {
-    const float halfRenderWidth = static_cast<float>(gEnv->pRenderer->GetWidth()) * 0.5f;
-    const float halfRenderHeight = static_cast<float>(gEnv->pRenderer->GetHeight()) * 0.5f;
+	const float halfRenderWidth = static_cast<float>(gEnv->pRenderer->GetWidth()) * 0.5f;
+	const float halfRenderHeight = static_cast<float>(gEnv->pRenderer->GetHeight()) * 0.5f;
 
-    const float searchRange = 0.5f;
-    Vec3 cameraCenterNear, cameraCenterFar;
-    gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 0, &cameraCenterNear.x, &cameraCenterNear.y, &cameraCenterNear.z);
-    gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 1, &cameraCenterFar.x, &cameraCenterFar.y, &cameraCenterFar.z);
-    const Vec3 searchDirection = (cameraCenterFar - cameraCenterNear).GetNormalized() * searchRange;
+	const float searchRange = 0.5f;
+	Vec3 cameraCenterNear, cameraCenterFar;
+	gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 0, &cameraCenterNear.x, &cameraCenterNear.y, &cameraCenterNear.z);
+	gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 1, &cameraCenterFar.x, &cameraCenterFar.y, &cameraCenterFar.z);
 
-    std::array<ray_hit, 1> hits;
-    const uint32 queryFlags = ent_all;
-    const uint32 rayFlags = rwi_stop_at_pierceable;
-    const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size());
+	// Calculate the left direction
+	Vec3 playerLeftDir = -m_pEntity->GetRightDir().GetNormalized();
+	Vec3 searchDirection = playerLeftDir * searchRange;
 
-    if (numHits > 0)
-    {
-		CryLogAlways("Wall detected! Number of hits: %d", numHits);
+	std::array<ray_hit, 1> hits;
+	const uint32 queryFlags = ent_all;
+	const uint32 rayFlags = rwi_stop_at_pierceable;
+	const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size());
+
+	if (numHits > 0)
+	{
+		CryLogAlways("Left Wall detected! Number of hits: %d", numHits);
 		return true;
-    }
+	}
 
-    // The raycast did not hit a wall
-    return false;
+	// The raycast did not hit a wall
+	CryLogAlways("NO Left Wall detected! Number of hits: %d", numHits);
+	return false;
 }
+
+
 
 bool CPlayerComponent::IsWallRight() const
 {
@@ -320,7 +326,10 @@ bool CPlayerComponent::IsWallRight() const
 	Vec3 cameraCenterNear, cameraCenterFar;
 	gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 0, &cameraCenterNear.x, &cameraCenterNear.y, &cameraCenterNear.z);
 	gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 1, &cameraCenterFar.x, &cameraCenterFar.y, &cameraCenterFar.z);
-	const Vec3 searchDirection = (cameraCenterFar - cameraCenterNear).GetNormalized() * searchRange;
+
+	// Calculate the left direction
+	Vec3 playerRightDir = m_pEntity->GetRightDir().GetNormalized();
+	Vec3 searchDirection = playerRightDir * searchRange;
 
 	std::array<ray_hit, 1> hits;
 	const uint32 queryFlags = ent_all;
@@ -329,14 +338,14 @@ bool CPlayerComponent::IsWallRight() const
 
 	if (numHits > 0)
 	{
-		CryLogAlways("Wall detected! Number of hits: %d", numHits);
+		CryLogAlways("Right Wall detected! Number of hits: %d", numHits);
 		return true;
 	}
 
 	// The raycast did not hit a wall
+	CryLogAlways("NO Right Wall detected! Number of hits: %d", numHits);
 	return false;
 }
-
 
 
 void CPlayerComponent::UpdateMovement()
