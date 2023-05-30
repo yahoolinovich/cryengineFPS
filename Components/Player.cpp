@@ -4,6 +4,7 @@
 #include "GamePlugin.h"
 #include <CryPhysics/RayCastQueue.h>
 #include <CryPhysics/physinterface.h>
+#include <CryEntitySystem/IEntitySystem.h>
 
 #include <CrySchematyc/Env/Elements/EnvComponent.h>
 #include <CryRenderer/IRenderAuxGeom.h>
@@ -296,24 +297,38 @@ bool CPlayerComponent::IsWallLeft() const
 	gEnv->pRenderer->UnProjectFromScreen(halfRenderWidth, halfRenderHeight, 1, &cameraCenterFar.x, &cameraCenterFar.y, &cameraCenterFar.z);
 
 	// Calculate the left direction
-	Vec3 playerLeftDir = -m_pEntity->GetRightDir().GetNormalized();
-	Vec3 searchDirection = playerLeftDir * searchRange;
+	Vec3 playerRightDir = -m_pEntity->GetRightDir().GetNormalized();
+	Vec3 searchDirection = playerRightDir * searchRange;
 
 	std::array<ray_hit, 1> hits;
 	const uint32 queryFlags = ent_all;
 	const uint32 rayFlags = rwi_stop_at_pierceable;
-	const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size());
+
+	// Exclude the player entity from the raycast query
+	const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size(), m_pEntity->GetPhysicalEntity());
 
 	if (numHits > 0)
 	{
-		CryLogAlways("Left Wall detected! Number of hits: %d", numHits);
-		return true;
+		const ray_hit& hit = hits[0];
+		IPhysicalEntity* pCollider = hit.pCollider;
+		IEntity* pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
+
+		if (pEntity)
+		{
+			const char* objectName = pEntity->GetName();
+			if (strcmp(objectName, "wallrunnable") == 0)
+			{
+				CryLogAlways("LEFT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
+				return true;
+			}
+		}
 	}
 
-	// The raycast did not hit a wall
-	CryLogAlways("NO Left Wall detected! Number of hits: %d", numHits);
+	// The raycast did not hit a wall or the object is not "wallrunnable"
+	CryLogAlways("No wall found");
 	return false;
 }
+
 
 
 
@@ -334,17 +349,38 @@ bool CPlayerComponent::IsWallRight() const
 	std::array<ray_hit, 1> hits;
 	const uint32 queryFlags = ent_all;
 	const uint32 rayFlags = rwi_stop_at_pierceable;
-	const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size());
+	const int numHits = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, searchDirection, queryFlags, rayFlags, hits.data(), hits.max_size(), m_pEntity->GetPhysicalEntity());
 
 	if (numHits > 0)
 	{
-		CryLogAlways("Right Wall detected! Number of hits: %d", numHits);
-		return true;
+		const ray_hit& hit = hits[0];
+		IPhysicalEntity* pCollider = hit.pCollider;
+		IEntity* pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
+
+		if (pEntity)
+		{
+			const char* objectName = pEntity->GetName();
+			if (strcmp(objectName, "wallrunnable") == 0)
+			{
+				CryLogAlways("RIGHT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
+				return true;
+			}
+		}
 	}
 
-	// The raycast did not hit a wall
-	CryLogAlways("NO Right Wall detected! Number of hits: %d", numHits);
+	// The raycast did not hit a wall or the object is not "wallrunnable"
+	CryLogAlways("No wall found");
 	return false;
+}
+
+void CPlayerComponent::StartWallRun()
+{
+	
+}
+
+void CPlayerComponent::StopWallRun()
+{
+
 }
 
 
