@@ -81,6 +81,8 @@ protected:
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
 	bool IsWallLeft() const;
 	bool IsWallRight() const;
+	void StartWallRun();
+	void StopWallRun();
 
 	
 
