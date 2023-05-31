@@ -16,7 +16,6 @@
 #include <DefaultComponents/Physics/CharacterControllerComponent.h>
 #include <DefaultComponents/Geometry/AdvancedAnimationComponent.h>
 
-// Pb
 namespace
 {
 	static void RegisterPlayerComponent(Schematyc::IEnvRegistrar& registrar)
@@ -193,8 +192,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 		UpdateMovement();
 		UpdateRotation();
 		UpdateCamera(frametime);
-		IsWallLeft();
-		IsWallRight();
+		StartWallRun();
 	}break;
 
 	case Cry::Entity::EEvent::PhysicalTypeChanged:
@@ -318,14 +316,14 @@ bool CPlayerComponent::IsWallLeft() const
 			const char* objectName = pEntity->GetName();
 			if (strcmp(objectName, "wallrunnable") == 0)
 			{
-				CryLogAlways("LEFT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
+				//CryLogAlways("LEFT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
 				return true;
 			}
 		}
 	}
 
 	// The raycast did not hit a wall or the object is not "wallrunnable"
-	CryLogAlways("No wall found");
+	//CryLogAlways("No wall found");
 	return false;
 }
 
@@ -362,20 +360,35 @@ bool CPlayerComponent::IsWallRight() const
 			const char* objectName = pEntity->GetName();
 			if (strcmp(objectName, "wallrunnable") == 0)
 			{
-				CryLogAlways("RIGHT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
+				//CryLogAlways("RIGHT Wall detected, Number of hits: %d, Object Name: %s", numHits, objectName);
 				return true;
 			}
 		}
 	}
 
 	// The raycast did not hit a wall or the object is not "wallrunnable"
-	CryLogAlways("No wall found");
+	//CryLogAlways("No wall found");
 	return false;
 }
 
 void CPlayerComponent::StartWallRun()
 {
-	
+	if (!m_pCharacterController->IsOnGround() && IsWallLeft())
+		TurnOffGravity();
+	else if (!m_pCharacterController->IsOnGround() && IsWallRight())
+		TurnOffGravity();
+}
+void CPlayerComponent::TurnOffGravity()
+{
+	IPhysicalEntity* pPlayerPhysicalEntity = m_pEntity->GetPhysicalEntity();
+
+	if (pPlayerPhysicalEntity)
+	{
+		pe_simulation_params simParams;
+
+		simParams.gravity.zero();
+		pPlayerPhysicalEntity->SetParams(&simParams);
+	}
 }
 
 void CPlayerComponent::StopWallRun()
