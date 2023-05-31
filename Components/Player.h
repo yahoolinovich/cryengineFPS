@@ -83,6 +83,7 @@ protected:
 	bool IsWallRight() const;
 	void StartWallRun();
 	void StopWallRun();
+	void TurnOffGravity();
 
 	
 
