@@ -79,8 +79,8 @@ protected:
 	void UpdateCamera(float frametime);
 	void TryUpdateStance();
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
-	bool IsWallLeft() const;
-	bool IsWallRight() const;
+	void IsWall();
+	bool wallerman = false;
 	void StartWallRun();
 	void StopWallRun();
 	void TurnOffGravity();
