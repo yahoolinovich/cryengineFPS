@@ -192,7 +192,6 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 		UpdateRotation();
 		UpdateCamera(frametime);
 		IsWall();
-		StartWallRun();
 	}break;
 
 	case Cry::Entity::EEvent::PhysicalTypeChanged:
@@ -299,19 +298,23 @@ void CPlayerComponent::IsWall()
 	Vec3 checkLeft = -playerRightDir * searchRange;
 	Vec3 checkRight = playerRightDir * searchRange;
 
-	std::array<ray_hit, 1> hits;
+	std::array<ray_hit, 1> left_hits;
+	std::array<ray_hit, 1> right_hits;
 	const uint32 queryFlags = ent_static;
 	const uint32 rayFlags = rwi_stop_at_pierceable;
 
+	IPhysicalEntity* playerEntity = m_pEntity->GetPhysicalEntity();
+
+
 	// Exclude the player entity from the raycast query
-	const int numHitsLeft = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, checkLeft, queryFlags, rayFlags, hits.data(), hits.max_size(), m_pEntity->GetPhysicalEntity());
-	const int numHitsRight = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, checkRight, queryFlags, rayFlags, hits.data(), hits.max_size(), m_pEntity->GetPhysicalEntity());
+	const int numHitsLeft = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, checkLeft, queryFlags, rayFlags, left_hits.data(), left_hits.max_size(), m_pEntity->GetPhysicalEntity());
+	const int numHitsRight = gEnv->pPhysicalWorld->RayWorldIntersection(cameraCenterNear, checkRight, queryFlags, rayFlags, right_hits.data(), right_hits.max_size(), m_pEntity->GetPhysicalEntity());
 
 
-	if (numHitsLeft > 0 || numHitsRight > 0)
+	if (numHitsLeft > 0)
 	{
-		const ray_hit& hit = hits[0];
-		IPhysicalEntity* pCollider = hit.pCollider;
+		const ray_hit& left_hit = left_hits[0];
+		IPhysicalEntity* pCollider = left_hit.pCollider;
 		IEntity* pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
 
 		if (pEntity)
@@ -319,20 +322,40 @@ void CPlayerComponent::IsWall()
 			const char* objectName = pEntity->GetName();
 			if (strcmp(objectName, "wallrunnable") == 0 && !m_pCharacterController->IsOnGround())
 			{
-				wallerman = true;
+				Vec3 surfaceNormal = left_hit.n;
+				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
+				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
+
+				pe_player_dynamics playerDynamics;
+				playerEntity->GetParams(&playerDynamics);
+				playerDynamics.gravity = Vec3(0.0f, 0.0f, 0.0f);  // Disable gravity
+				playerEntity->SetParams(&playerDynamics);
+			}
+		}
+	}
+
+	else if (numHitsRight > 0)
+	{
+		const ray_hit& right_hit = right_hits[0];
+		IPhysicalEntity* pCollider = right_hit.pCollider;
+		IEntity* pEntity = gEnv->pEntitySystem->GetEntityFromPhysics(pCollider);
+
+		if (pEntity)
+		{
+			const char* objectName = pEntity->GetName();
+			if (strcmp(objectName, "wallrunnable") == 0 && !m_pCharacterController->IsOnGround())
+			{
 			}
 		}
 	}
 
 	// The raycast did not hit a wall or the object is not "wallrunnable"
-	wallerman = false;
 }
 
 void CPlayerComponent::StartWallRun()
 {
-	if (!m_pCharacterController->IsOnGround() && wallerman)
+	//if (wallerman)
 		//CryLogAlways("LEFT Wall detected");
-		TurnOffGravity();
 }
 void CPlayerComponent::TurnOffGravity()
 {
