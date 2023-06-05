@@ -80,7 +80,6 @@ protected:
 	void TryUpdateStance();
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
 	void IsWall();
-	bool wallerman = false;
 	void StartWallRun();
 	void StopWallRun();
 	void TurnOffGravity();
