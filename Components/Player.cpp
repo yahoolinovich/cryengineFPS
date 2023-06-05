@@ -139,7 +139,7 @@ void CPlayerComponent::InitializeInput()
 
 	m_pInputComponent->RegisterAction("player", "jump", [this](int activationMode, float value)
 		{
-			if (m_pCharacterController->IsOnGround() && activationMode == eAAM_OnPress)
+			if (activationMode == eAAM_OnPress)
 			{
 				m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
 			}
@@ -319,12 +319,18 @@ void CPlayerComponent::IsWall()
 
 		if (pEntity)
 		{
-			const char* objectName = pEntity->GetName();
-			if (strcmp(objectName, "wallrunnable") == 0 && !m_pCharacterController->IsOnGround())
+			if (!m_pCharacterController->IsOnGround())
 			{
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
+
+				float speed = 5.0f;
+				Vec3 desiredVelocity = -surfaceForward.GetNormalized() * speed;
+
+				pe_action_set_velocity setVelocityAction;
+				setVelocityAction.v = desiredVelocity;
+				playerEntity->Action(&setVelocityAction);
 
 				pe_player_dynamics playerDynamics;
 				playerEntity->GetParams(&playerDynamics);
@@ -342,38 +348,28 @@ void CPlayerComponent::IsWall()
 
 		if (pEntity)
 		{
-			const char* objectName = pEntity->GetName();
-			if (strcmp(objectName, "wallrunnable") == 0 && !m_pCharacterController->IsOnGround())
+			if (!m_pCharacterController->IsOnGround())
 			{
+				Vec3 surfaceNormal = right_hit.n;
+				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
+				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
+
+				float speed = 5.0f;
+				Vec3 desiredVelocity = surfaceForward.GetNormalized() * speed;
+
+				pe_action_set_velocity setVelocityAction;
+				setVelocityAction.v = desiredVelocity;
+				playerEntity->Action(&setVelocityAction);
+
+				pe_player_dynamics playerDynamics;
+				playerEntity->GetParams(&playerDynamics);
+				playerDynamics.gravity = Vec3(0.0f, 0.0f, 0.0f);  // Disable gravity
+				playerEntity->SetParams(&playerDynamics);
 			}
 		}
 	}
 
 	// The raycast did not hit a wall or the object is not "wallrunnable"
-}
-
-void CPlayerComponent::StartWallRun()
-{
-	//if (wallerman)
-		//CryLogAlways("LEFT Wall detected");
-}
-void CPlayerComponent::TurnOffGravity()
-{
-	IPhysicalEntity* pPlayerPhysicalEntity = m_pEntity->GetPhysicalEntity();
-	
-
-	if (pPlayerPhysicalEntity)
-	{
-		pe_simulation_params simParams;
-
-		simParams.gravity.zero();
-		pPlayerPhysicalEntity->SetParams(&simParams);
-	}
-}
-
-void CPlayerComponent::StopWallRun()
-{
-
 }
 
 
