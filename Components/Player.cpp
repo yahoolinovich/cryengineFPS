@@ -51,6 +51,7 @@ CPlayerComponent::CPlayerComponent() :
 	m_walkSpeed(DEFAULT_SPEED_WALKING),
 	m_runSpeed(DEFAULT_SPEED_RUNNING),
 	m_jumpheight(DEFAULT_JUMP_ENERGY),
+	m_doublejumpheight(DEFAULT_DOUBLE_JUMP_ENERGY),
 	m_rotationLimitsMaxPitch(DEFAULT_ROT_LIMIT_PITCH_MAX),
 	m_rotationLimitsMinPitch(DEFAULT_ROT_LIMIT_PITCH_MIN)
 
@@ -139,13 +140,25 @@ void CPlayerComponent::InitializeInput()
 
 	m_pInputComponent->RegisterAction("player", "jump", [this](int activationMode, float value)
 		{
-			if (activationMode == eAAM_OnPress)
+			if (activationMode == eAAM_OnPress && m_pCharacterController->IsOnGround())
 			{
 				m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
 			}
 			
 		});
 	m_pInputComponent->BindAction("player", "jump", eAID_KeyboardMouse, eKI_Space);
+
+	m_pInputComponent->RegisterAction("player", "double_jump", [this](int activationMode, float value)
+		{
+			if (activationMode == eAAM_OnPress && !m_pCharacterController->IsOnGround())
+			{
+				Vec3 currentVelocity = m_pCharacterController->GetVelocity();
+				Vec3 desiredVelocity = Vec3(0.0f, 0.0f, abs(currentVelocity.z) + m_doublejumpheight);
+				m_pCharacterController->AddVelocity(desiredVelocity);
+			}
+
+		});
+	m_pInputComponent->BindAction("player", "double_jump", eAID_KeyboardMouse, eKI_Space);
 
 	m_pInputComponent->RegisterAction("player", "crouch", [this](int activationMode, float value)
 		{
