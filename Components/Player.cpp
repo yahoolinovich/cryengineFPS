@@ -140,7 +140,7 @@ void CPlayerComponent::InitializeInput()
 
 	m_pInputComponent->RegisterAction("player", "jump", [this](int activationMode, float value)
 		{
-			if (activationMode == eAAM_OnPress && m_pCharacterController->IsOnGround())
+			if (activationMode == eAAM_OnPress && canJump)
 			{
 				m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
 			}
@@ -150,11 +150,12 @@ void CPlayerComponent::InitializeInput()
 
 	m_pInputComponent->RegisterAction("player", "double_jump", [this](int activationMode, float value)
 		{
-			if (activationMode == eAAM_OnPress && !m_pCharacterController->IsOnGround())
+			if (activationMode == eAAM_OnPress && !m_pCharacterController->IsOnGround() && !wallrunning && canDoubleJump)
 			{
 				Vec3 currentVelocity = m_pCharacterController->GetVelocity();
 				Vec3 desiredVelocity = Vec3(0.0f, 0.0f, abs(currentVelocity.z) + m_doublejumpheight);
 				m_pCharacterController->AddVelocity(desiredVelocity);
+				canDoubleJump = false;
 			}
 
 		});
@@ -204,6 +205,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 		UpdateMovement();
 		UpdateRotation();
 		UpdateCamera(frametime);
+		onGroundCollision();
 		IsWall();
 	}break;
 
@@ -334,6 +336,7 @@ void CPlayerComponent::IsWall()
 		{
 			if (!m_pCharacterController->IsOnGround())
 			{
+				wallrunning = true;
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
@@ -363,6 +366,7 @@ void CPlayerComponent::IsWall()
 		{
 			if (!m_pCharacterController->IsOnGround())
 			{
+				wallrunning = true;
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
@@ -381,8 +385,23 @@ void CPlayerComponent::IsWall()
 			}
 		}
 	}
+	else {
+		wallrunning = false;
+	}
 
 	// The raycast did not hit a wall or the object is not "wallrunnable"
+}
+
+void CPlayerComponent::onGroundCollision()
+{
+	if (m_pCharacterController->IsOnGround() or wallrunning) {
+		canJump = true;
+		canDoubleJump = true;
+	}
+	else if (!m_pCharacterController->IsOnGround() && !wallrunning) {
+			canJump = false;
+	}
+	
 }
 
 
