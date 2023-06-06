@@ -33,6 +33,7 @@ private:
 	static constexpr float DEFAULT_SPEED_WALKING = 3;
 	static constexpr float DEFAULT_SPEED_RUNNING = 6;
 	static constexpr float DEFAULT_JUMP_ENERGY = 4;
+	static constexpr float DEFAULT_DOUBLE_JUMP_ENERGY = 6;
 	static constexpr float DEFAULT_ROTATION_SPEED = 0.002;
 	static constexpr float DEFAULT_CAMERA_HEIGHT_CROUCHING = 1.0;
 	static constexpr float DEFAULT_CAPSULE_HEIGHT_CROUCHING = 0.75;
@@ -58,6 +59,7 @@ public:
 		desc.SetGUID("{63F4C0C6-32AF-4ACB-8FB0-57D45DD14725}"_cry_guid);
 		desc.AddMember(&CPlayerComponent::m_walkSpeed, 'pws', "playerwalkspeed", "Player Walk Speed", "Sets the Player Walk Speed", DEFAULT_SPEED_WALKING);
 		desc.AddMember(&CPlayerComponent::m_runSpeed, 'prs', "playerrunspeed", "Player Run Speed", "Sets the Players Run Speed", DEFAULT_SPEED_RUNNING);
+		desc.AddMember(&CPlayerComponent::m_doublejumpheight, 'djh', "playerdoublejumpheight", "Player Double Jump Height", "Sets the Players Jump Height", DEFAULT_DOUBLE_JUMP_ENERGY);
 		desc.AddMember(&CPlayerComponent::m_jumpheight, 'pjh', "playerjumpheight", "Player Jump Height", "Sets the Players Jump Height", DEFAULT_JUMP_ENERGY);
 		desc.AddMember(&CPlayerComponent::m_cameraOffsetCrouching, 'camc', "cameraoffsetcrouching", "Camera Crouching Offset", "Offset of the camera while crouching", Vec3(0.f, 0.f, DEFAULT_CAMERA_HEIGHT_CROUCHING));
 		desc.AddMember(&CPlayerComponent::m_cameraOffsetStanding, 'cams', "cameraoffsetstanding", "Camera Standing Offset", "Offset of the camera while standing", Vec3(0.f, 0.f, DEFAULT_CAMERA_HEIGHT_STANDING));
@@ -80,9 +82,6 @@ protected:
 	void TryUpdateStance();
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
 	void IsWall();
-	void StartWallRun();
-	void StopWallRun();
-	void TurnOffGravity();
 
 	
 
@@ -117,6 +116,7 @@ private:
 	float m_walkSpeed;
 	float m_runSpeed;
 	float m_jumpheight;
+	float m_doublejumpheight;
 
 	float m_rotationLimitsMinPitch;
 	float m_rotationLimitsMaxPitch;
