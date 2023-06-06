@@ -82,6 +82,10 @@ protected:
 	void TryUpdateStance();
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
 	void IsWall();
+	void onGroundCollision();
+	bool canDoubleJump = true;
+	bool canJump = true;
+	bool wallrunning = false;
 
 	
 
