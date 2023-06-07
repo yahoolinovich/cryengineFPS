@@ -86,6 +86,8 @@ protected:
 	bool canDoubleJump = true;
 	bool canJump = true;
 	bool wallrunning = false;
+	bool m_isMovingForward = false;
+	bool canWallrun = false;
 
 	
 
@@ -116,6 +118,10 @@ private:
 	float m_capsuleHeightStanding;
 	float m_capsuleHeightCrouching;
 	float m_capsuleGroundOffset;
+
+	float frametime = 0.0f;
+	float m_wallrunCooldown = 0.2f;
+	float m_wallrunTimer = 0.0f;
 
 	float m_walkSpeed;
 	float m_runSpeed;
