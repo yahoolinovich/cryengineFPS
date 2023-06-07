@@ -113,7 +113,7 @@ void CPlayerComponent::RecenterCollider()
 
 void CPlayerComponent::InitializeInput()
 {
-	m_pInputComponent->RegisterAction("player", "moveforward", [this](int activationMode, float value) {m_movementDelta.y = value; });
+	m_pInputComponent->RegisterAction("player", "moveforward", [this](int activationMode, float value) {m_movementDelta.y = value; m_isMovingForward = value > 0.0f; });
 	m_pInputComponent->BindAction("player", "moveforward", eAID_KeyboardMouse, eKI_W);
 
 	m_pInputComponent->RegisterAction("player", "moveback", [this](int activationMode, float value) {m_movementDelta.y = -value; });
@@ -141,8 +141,11 @@ void CPlayerComponent::InitializeInput()
 	m_pInputComponent->RegisterAction("player", "jump", [this](int activationMode, float value)
 		{
 			if (activationMode == eAAM_OnPress && canJump)
-			{
+			{	
 				m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
+				if (wallrunning)
+					canWallrun = false;
+					m_wallrunTimer = 0.0f;
 			}
 			
 		});
@@ -199,7 +202,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 	break;
 	case Cry::Entity::EEvent::Update:
 	{
-		const float frametime = event.fParam[0];
+		frametime = event.fParam[0];
 
 		TryUpdateStance();
 		UpdateMovement();
@@ -334,7 +337,7 @@ void CPlayerComponent::IsWall()
 
 		if (pEntity)
 		{
-			if (!m_pCharacterController->IsOnGround())
+			if (!m_pCharacterController->IsOnGround() && m_isMovingForward && canWallrun)
 			{
 				wallrunning = true;
 				Vec3 surfaceNormal = left_hit.n;
@@ -364,7 +367,7 @@ void CPlayerComponent::IsWall()
 
 		if (pEntity)
 		{
-			if (!m_pCharacterController->IsOnGround())
+			if (!m_pCharacterController->IsOnGround() && m_isMovingForward && canWallrun)
 			{
 				wallrunning = true;
 				Vec3 surfaceNormal = right_hit.n;
@@ -387,9 +390,12 @@ void CPlayerComponent::IsWall()
 	}
 	else {
 		wallrunning = false;
+		m_wallrunTimer += frametime;
+		if (m_wallrunTimer >= m_wallrunCooldown)
+		{
+			canWallrun = true;  // Cooldown period over, allow wallrunning again
+		}
 	}
-
-	// The raycast did not hit a wall or the object is not "wallrunnable"
 }
 
 void CPlayerComponent::onGroundCollision()
