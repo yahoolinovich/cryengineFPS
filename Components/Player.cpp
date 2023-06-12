@@ -343,19 +343,21 @@ void CPlayerComponent::IsWall()
 			{
 				wallrunning = true;
 
-				Quat desiredCameraRotation = m_initialCameraRotation * Quat::CreateRotationY(0.5f); // Example: Rotate 0.5 radians around the Z-axis
-				m_pEntity->SetRotation(desiredCameraRotation);
+				//Quat desiredCameraRotation = m_initialCameraRotation * Quat::CreateRotationY(0.5f); // Example: Rotate 0.5 radians around the Z-axis
+				//m_pEntity->SetRotation(desiredCameraRotation);
 
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
 
 				float speed = 5.0f;
-				Vec3 desiredVelocity = -surfaceForward.GetNormalized() * speed;
+				Vec3 wallForce = -surfaceNormal * 2.0f;
+				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * speed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
 				playerEntity->Action(&setVelocityAction);
+				
 
 				pe_player_dynamics playerDynamics;
 				playerEntity->GetParams(&playerDynamics);
@@ -381,7 +383,8 @@ void CPlayerComponent::IsWall()
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
 
 				float speed = 5.0f;
-				Vec3 desiredVelocity = surfaceForward.GetNormalized() * speed;
+				Vec3 wallForce = -surfaceNormal * 2.0f;
+				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * speed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
