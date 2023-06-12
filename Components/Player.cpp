@@ -303,6 +303,8 @@ bool CPlayerComponent::IsCapsuleIntersectingGeometry(const primitives::capsule& 
 
 void CPlayerComponent::IsWall()
 {
+	Quat m_initialCameraRotation = m_pEntity->GetRotation();
+
 	const float halfRenderWidth = static_cast<float>(gEnv->pRenderer->GetWidth()) * 0.5f;
 	const float halfRenderHeight = static_cast<float>(gEnv->pRenderer->GetHeight()) * 0.5f;
 
@@ -340,6 +342,10 @@ void CPlayerComponent::IsWall()
 			if (!m_pCharacterController->IsOnGround() && m_isMovingForward && canWallrun)
 			{
 				wallrunning = true;
+
+				Quat desiredCameraRotation = m_initialCameraRotation * Quat::CreateRotationY(0.5f); // Example: Rotate 0.5 radians around the Z-axis
+				m_pEntity->SetRotation(desiredCameraRotation);
+
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
