@@ -384,7 +384,7 @@ void CPlayerComponent::IsWall()
 
 				float speed = 5.0f;
 				Vec3 wallForce = -surfaceNormal * 2.0f;
-				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * speed) + wallForce;
+				Vec3 desiredVelocity = (surfaceForward.GetNormalized() * speed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
