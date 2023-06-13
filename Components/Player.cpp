@@ -350,9 +350,9 @@ void CPlayerComponent::IsWall()
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
 
-				float speed = 5.0f;
+				
 				Vec3 wallForce = -surfaceNormal * 2.0f;
-				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * speed) + wallForce;
+				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * m_runSpeed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
@@ -382,9 +382,9 @@ void CPlayerComponent::IsWall()
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
 
-				float speed = 5.0f;
+				
 				Vec3 wallForce = -surfaceNormal * 2.0f;
-				Vec3 desiredVelocity = (surfaceForward.GetNormalized() * speed) + wallForce;
+				Vec3 desiredVelocity = (surfaceForward.GetNormalized() * m_runSpeed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
