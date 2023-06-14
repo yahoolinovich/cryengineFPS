@@ -142,10 +142,16 @@ void CPlayerComponent::InitializeInput()
 		{
 			if (activationMode == eAAM_OnPress && canJump)
 			{	
-				m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
 				if (wallrunning)
+				{
 					canWallrun = false;
 					m_wallrunTimer = 0.0f;
+					Vec3 forceApply = (Vec3(0.0f, 0.0f, m_walljumpheight)) + m_wallNormal * m_walljumpside;
+					m_pCharacterController->AddVelocity(forceApply);
+				}
+				else { 
+					m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight)); 
+				}
 			}
 			
 		});
@@ -343,8 +349,7 @@ void CPlayerComponent::IsWall()
 			{
 				wallrunning = true;
 
-				//Quat desiredCameraRotation = m_initialCameraRotation * Quat::CreateRotationY(0.5f); // Example: Rotate 0.5 radians around the Z-axis
-				//m_pEntity->SetRotation(desiredCameraRotation);
+				m_wallNormal = left_hit.n;
 
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
@@ -378,6 +383,9 @@ void CPlayerComponent::IsWall()
 			if (!m_pCharacterController->IsOnGround() && m_isMovingForward && canWallrun)
 			{
 				wallrunning = true;
+
+				m_wallNormal = right_hit.n;
+
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
