@@ -33,6 +33,8 @@ private:
 	static constexpr float DEFAULT_SPEED_WALKING = 3;
 	static constexpr float DEFAULT_SPEED_RUNNING = 6;
 	static constexpr float DEFAULT_JUMP_ENERGY = 4;
+	static constexpr float DEFAULT_WALLJUMP_SIDE_ENERGY = 5;
+	static constexpr float DEFAULT_WALLJUMP_HEIGHT_ENERGY = 4;
 	static constexpr float DEFAULT_DOUBLE_JUMP_ENERGY = 6;
 	static constexpr float DEFAULT_ROTATION_SPEED = 0.002;
 	static constexpr float DEFAULT_CAMERA_HEIGHT_CROUCHING = 1.0;
@@ -61,6 +63,9 @@ public:
 		desc.AddMember(&CPlayerComponent::m_runSpeed, 'prs', "playerrunspeed", "Player Run Speed", "Sets the Players Run Speed", DEFAULT_SPEED_RUNNING);
 		desc.AddMember(&CPlayerComponent::m_doublejumpheight, 'djh', "playerdoublejumpheight", "Player Double Jump Height", "Sets the Players Jump Height", DEFAULT_DOUBLE_JUMP_ENERGY);
 		desc.AddMember(&CPlayerComponent::m_jumpheight, 'pjh', "playerjumpheight", "Player Jump Height", "Sets the Players Jump Height", DEFAULT_JUMP_ENERGY);
+		desc.AddMember(&CPlayerComponent::m_walljumpside, 'wjs', "playerwalljumpside", "Player Wall Jump Side Height", "Sets the Players Wall Jump Side Height", DEFAULT_WALLJUMP_SIDE_ENERGY);
+		desc.AddMember(&CPlayerComponent::m_walljumpheight, 'wjh', "playerwalljumpheight", "Player Wall Jump Height", "Sets the Players Wall Jump Height", DEFAULT_WALLJUMP_HEIGHT_ENERGY);
+
 		desc.AddMember(&CPlayerComponent::m_cameraOffsetCrouching, 'camc', "cameraoffsetcrouching", "Camera Crouching Offset", "Offset of the camera while crouching", Vec3(0.f, 0.f, DEFAULT_CAMERA_HEIGHT_CROUCHING));
 		desc.AddMember(&CPlayerComponent::m_cameraOffsetStanding, 'cams', "cameraoffsetstanding", "Camera Standing Offset", "Offset of the camera while standing", Vec3(0.f, 0.f, DEFAULT_CAMERA_HEIGHT_STANDING));
 		desc.AddMember(&CPlayerComponent::m_capsuleHeightCrouching, 'capc', "capsuleheightcrouching", "Capsule Crouching Height", "Height of collision capsule while crouching", DEFAULT_CAPSULE_HEIGHT_CROUCHING);
@@ -113,6 +118,7 @@ private:
 	// Component Properties
 	float m_rotationSpeed;
 
+	Vec3 m_wallNormal;
 	Vec3 m_cameraOffsetStanding;
 	Vec3 m_cameraOffsetCrouching;
 	float m_capsuleHeightStanding;
@@ -126,6 +132,8 @@ private:
 	float m_walkSpeed;
 	float m_runSpeed;
 	float m_jumpheight;
+	float m_walljumpside;
+	float m_walljumpheight;
 	float m_doublejumpheight;
 
 	float m_rotationLimitsMinPitch;
