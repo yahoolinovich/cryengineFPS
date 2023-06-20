@@ -47,10 +47,14 @@ CPlayerComponent::CPlayerComponent() :
 	, m_capsuleHeightStanding(DEFAULT_CAPSULE_HEIGHT_STANDING)
 	, m_capsuleHeightCrouching(DEFAULT_CAPSULE_HEIGHT_CROUCHING)
 	, m_capsuleGroundOffset(DEFAULT_CAPSULE_GROUND_OFFSET),
+	m_wallrunFOV(DEFAULT_WALLRUN_FOV),
+	m_FOV(DEFAULT_PLAYER_FOV),
 	m_rotationSpeed(DEFAULT_ROTATION_SPEED),
 	m_walkSpeed(DEFAULT_SPEED_WALKING),
 	m_runSpeed(DEFAULT_SPEED_RUNNING),
 	m_jumpheight(DEFAULT_JUMP_ENERGY),
+	m_walljumpside(DEFAULT_WALLJUMP_SIDE_ENERGY),
+	m_walljumpheight(DEFAULT_WALLJUMP_HEIGHT_ENERGY),
 	m_doublejumpheight(DEFAULT_DOUBLE_JUMP_ENERGY),
 	m_rotationLimitsMaxPitch(DEFAULT_ROT_LIMIT_PITCH_MAX),
 	m_rotationLimitsMinPitch(DEFAULT_ROT_LIMIT_PITCH_MIN)
@@ -309,7 +313,8 @@ bool CPlayerComponent::IsCapsuleIntersectingGeometry(const primitives::capsule& 
 
 void CPlayerComponent::IsWall()
 {
-	Quat m_initialCameraRotation = m_pEntity->GetRotation();
+	//CryTransform::CAngle fovAngle = m_pCameraComponent->GetFieldOfView();
+	//float currentFOV = fovAngle.ToDegrees();
 
 	const float halfRenderWidth = static_cast<float>(gEnv->pRenderer->GetWidth()) * 0.5f;
 	const float halfRenderHeight = static_cast<float>(gEnv->pRenderer->GetHeight()) * 0.5f;
@@ -351,6 +356,8 @@ void CPlayerComponent::IsWall()
 
 				m_wallNormal = left_hit.n;
 
+				m_pCameraComponent->SetFieldOfView(m_wallrunFOV);
+
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
@@ -386,6 +393,8 @@ void CPlayerComponent::IsWall()
 
 				m_wallNormal = right_hit.n;
 
+				m_pCameraComponent->SetFieldOfView(m_wallrunFOV);
+
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
@@ -407,6 +416,7 @@ void CPlayerComponent::IsWall()
 	}
 	else {
 		wallrunning = false;
+		m_pCameraComponent->SetFieldOfView(m_FOV);
 		m_wallrunTimer += frametime;
 		if (m_wallrunTimer >= m_wallrunCooldown)
 		{
