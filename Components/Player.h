@@ -41,6 +41,8 @@ private:
 	static constexpr float DEFAULT_CAPSULE_HEIGHT_CROUCHING = 0.75;
 	static constexpr float DEFAULT_CAPSULE_HEIGHT_STANDING = 1.7;
 	static constexpr float DEFAULT_CAPSULE_GROUND_OFFSET = 0.2;
+	static constexpr CryTransform::CAngle DEFAULT_WALLRUN_FOV = CryTransform::CAngle::FromDegrees(90.0f);
+	static constexpr CryTransform::CAngle DEFAULT_PLAYER_FOV = CryTransform::CAngle::FromDegrees(65.0f);
 	static constexpr float DEFAULT_CAMERA_HEIGHT_STANDING = 1.7;
 	static constexpr float DEFAULT_ROT_LIMIT_PITCH_MAX = 1.5;
 	static constexpr float DEFAULT_ROT_LIMIT_PITCH_MIN = -1.5;
@@ -70,7 +72,9 @@ public:
 		desc.AddMember(&CPlayerComponent::m_cameraOffsetStanding, 'cams', "cameraoffsetstanding", "Camera Standing Offset", "Offset of the camera while standing", Vec3(0.f, 0.f, DEFAULT_CAMERA_HEIGHT_STANDING));
 		desc.AddMember(&CPlayerComponent::m_capsuleHeightCrouching, 'capc', "capsuleheightcrouching", "Capsule Crouching Height", "Height of collision capsule while crouching", DEFAULT_CAPSULE_HEIGHT_CROUCHING);
 		desc.AddMember(&CPlayerComponent::m_capsuleHeightStanding, 'caps', "capsuleheightstanding", "Capsule Standing Height", "Height of collision capsule while standing", DEFAULT_CAPSULE_HEIGHT_STANDING);
-		desc.AddMember(&CPlayerComponent::m_capsuleGroundOffset, 'capo', "capsulegroundoffset", "Capsule Ground Offset", "Offset of the capsule from the entity floor", DEFAULT_CAPSULE_GROUND_OFFSET);		
+		desc.AddMember(&CPlayerComponent::m_capsuleGroundOffset, 'capo', "capsulegroundoffset", "Capsule Ground Offset", "Offset of the capsule from the entity floor", DEFAULT_CAPSULE_GROUND_OFFSET);
+		desc.AddMember(&CPlayerComponent::m_wallrunFOV, 'wfov', "wallrunfov", "Player Wall Run FOV", "Player FOV when wall running", DEFAULT_WALLRUN_FOV);
+		desc.AddMember(&CPlayerComponent::m_FOV, 'fov', "playerfov", "Player FOV", "Player FOV", DEFAULT_PLAYER_FOV);
 		desc.AddMember(&CPlayerComponent::m_rotationSpeed, 'pros', "playerrotationspeed", "Player Rotation Speed", "Sets player rotation speed", DEFAULT_ROTATION_SPEED);
 		desc.AddMember(&CPlayerComponent::m_rotationLimitsMaxPitch, 'cpm', "camerapitchmax", "Camera Pitch Max", "Maximum Rotation Value for camera pitch", DEFAULT_ROT_LIMIT_PITCH_MAX);
 		desc.AddMember(&CPlayerComponent::m_rotationLimitsMinPitch, 'cpmi', "camerapitchmin", "Camera Pitch Min", "Minimum Rotation Value for camera pitch", -DEFAULT_ROT_LIMIT_PITCH_MIN);
@@ -124,6 +128,8 @@ private:
 	float m_capsuleHeightStanding;
 	float m_capsuleHeightCrouching;
 	float m_capsuleGroundOffset;
+	CryTransform::CAngle m_wallrunFOV;
+	CryTransform::CAngle m_FOV;
 
 	float frametime = 0.0f;
 	float m_wallrunCooldown = 0.2f;
