@@ -91,6 +91,7 @@ protected:
 	void TryUpdateStance();
 	bool IsCapsuleIntersectingGeometry(const primitives::capsule& capsule) const;
 	void IsWall();
+	void TransitionFOV();
 	void onGroundCollision();
 	bool canDoubleJump = true;
 	bool canJump = true;
@@ -130,6 +131,7 @@ private:
 	float m_capsuleGroundOffset;
 	CryTransform::CAngle m_wallrunFOV;
 	CryTransform::CAngle m_FOV;
+	CryTransform::CAngle m_desiredFOV = m_FOV;
 
 	float frametime = 0.0f;
 	float m_wallrunCooldown = 0.2f;
