@@ -355,6 +355,7 @@ void CPlayerComponent::IsWall()
 				m_wallNormal = left_hit.n;
 
 				m_desiredFOV = m_wallrunFOV;
+				m_wallrunYaw = 0.3f;
 
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
@@ -390,6 +391,7 @@ void CPlayerComponent::IsWall()
 				m_wallNormal = right_hit.n;
 
 				m_desiredFOV = m_wallrunFOV;
+				m_wallrunYaw = -0.3f;
 
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
@@ -483,10 +485,19 @@ void CPlayerComponent::UpdateCamera(float frametime)
 	m_currentPitch = crymath::clamp(m_currentPitch + m_mouseDeltaRotation.y * m_rotationSpeed, m_rotationLimitsMinPitch, m_rotationLimitsMaxPitch);
 
 	Vec3 currentCameraOffset = m_pCameraComponent->GetTransformMatrix().GetTranslation();
-	currentCameraOffset = Vec3::CreateLerp(currentCameraOffset, m_cameraEndOffset, 10.0f * frametime);
 
+	currentCameraOffset = Vec3::CreateLerp(currentCameraOffset, m_cameraEndOffset, 10.0f * frametime);
 	Matrix34 finalCamMatrix;
+
 	finalCamMatrix.SetTranslation(currentCameraOffset);
-	finalCamMatrix.SetRotation33(Matrix33::CreateRotationX(m_currentPitch));
+
+	if (wallrunning)
+	{
+		finalCamMatrix.SetRotation33(Matrix33::CreateRotationY(m_wallrunYaw));
+	}
+	else
+	{
+		finalCamMatrix.SetRotation33(Matrix33::CreateRotationX(m_currentPitch));
+	}
 	m_pCameraComponent->SetTransformMatrix(finalCamMatrix);
 }
