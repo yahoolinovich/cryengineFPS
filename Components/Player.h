@@ -41,7 +41,7 @@ private:
 	static constexpr float DEFAULT_CAPSULE_HEIGHT_CROUCHING = 0.75;
 	static constexpr float DEFAULT_CAPSULE_HEIGHT_STANDING = 1.7;
 	static constexpr float DEFAULT_CAPSULE_GROUND_OFFSET = 0.2;
-	static constexpr CryTransform::CAngle DEFAULT_WALLRUN_FOV = CryTransform::CAngle::FromDegrees(90.0f);
+	static constexpr CryTransform::CAngle DEFAULT_WALLRUN_FOV = CryTransform::CAngle::FromDegrees(75.0f);
 	static constexpr CryTransform::CAngle DEFAULT_PLAYER_FOV = CryTransform::CAngle::FromDegrees(65.0f);
 	static constexpr float DEFAULT_CAMERA_HEIGHT_STANDING = 1.7;
 	static constexpr float DEFAULT_ROT_LIMIT_PITCH_MAX = 1.5;
@@ -129,6 +129,8 @@ private:
 	float m_capsuleHeightStanding;
 	float m_capsuleHeightCrouching;
 	float m_capsuleGroundOffset;
+
+	float FOV_CHANGE_RATE = 35.0f;
 	CryTransform::CAngle m_wallrunFOV;
 	CryTransform::CAngle m_FOV;
 	CryTransform::CAngle m_desiredFOV = m_FOV;
