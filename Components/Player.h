@@ -138,6 +138,7 @@ private:
 	float frametime = 0.0f;
 	float m_wallrunCooldown = 0.2f;
 	float m_wallrunTimer = 0.0f;
+	float m_wallrunYaw;
 
 	float m_walkSpeed;
 	float m_runSpeed;
