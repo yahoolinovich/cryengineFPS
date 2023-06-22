@@ -220,6 +220,7 @@ void CPlayerComponent::ProcessEvent(const SEntityEvent& event)
 		UpdateCamera(frametime);
 		onGroundCollision();
 		IsWall();
+		TransitionFOV();
 	}break;
 
 	case Cry::Entity::EEvent::PhysicalTypeChanged:
@@ -313,9 +314,6 @@ bool CPlayerComponent::IsCapsuleIntersectingGeometry(const primitives::capsule& 
 
 void CPlayerComponent::IsWall()
 {
-	//CryTransform::CAngle fovAngle = m_pCameraComponent->GetFieldOfView();
-	//float currentFOV = fovAngle.ToDegrees();
-
 	const float halfRenderWidth = static_cast<float>(gEnv->pRenderer->GetWidth()) * 0.5f;
 	const float halfRenderHeight = static_cast<float>(gEnv->pRenderer->GetHeight()) * 0.5f;
 
@@ -356,20 +354,18 @@ void CPlayerComponent::IsWall()
 
 				m_wallNormal = left_hit.n;
 
-				m_pCameraComponent->SetFieldOfView(m_wallrunFOV);
+				m_desiredFOV = m_wallrunFOV;
 
 				Vec3 surfaceNormal = left_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
 
-				
 				Vec3 wallForce = -surfaceNormal * 2.0f;
 				Vec3 desiredVelocity = (-surfaceForward.GetNormalized() * m_runSpeed) + wallForce;
 
 				pe_action_set_velocity setVelocityAction;
 				setVelocityAction.v = desiredVelocity;
 				playerEntity->Action(&setVelocityAction);
-				
 
 				pe_player_dynamics playerDynamics;
 				playerEntity->GetParams(&playerDynamics);
@@ -393,12 +389,11 @@ void CPlayerComponent::IsWall()
 
 				m_wallNormal = right_hit.n;
 
-				m_pCameraComponent->SetFieldOfView(m_wallrunFOV);
+				m_desiredFOV = m_wallrunFOV;
 
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
-
 				
 				Vec3 wallForce = -surfaceNormal * 2.0f;
 				Vec3 desiredVelocity = (surfaceForward.GetNormalized() * m_runSpeed) + wallForce;
@@ -416,12 +411,26 @@ void CPlayerComponent::IsWall()
 	}
 	else {
 		wallrunning = false;
-		m_pCameraComponent->SetFieldOfView(m_FOV);
+		m_desiredFOV = m_FOV;
 		m_wallrunTimer += frametime;
 		if (m_wallrunTimer >= m_wallrunCooldown)
 		{
 			canWallrun = true;  // Cooldown period over, allow wallrunning again
 		}
+	}
+}
+
+void CPlayerComponent::TransitionFOV()
+{
+	CryTransform::CAngle fovAngle = m_pCameraComponent->GetFieldOfView();
+	if (fovAngle != m_desiredFOV)
+	{
+		float currentFOV = fovAngle.ToDegrees();
+		currentFOV += 1.0f;
+		//float desiredFOV = m_desiredFOV.ToDegrees();
+		CryTransform::CAngle curr = CryTransform::CAngle::FromDegrees(currentFOV);
+
+		m_pCameraComponent->SetFieldOfView(curr);
 	}
 }
 
