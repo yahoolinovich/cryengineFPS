@@ -423,14 +423,31 @@ void CPlayerComponent::IsWall()
 void CPlayerComponent::TransitionFOV()
 {
 	CryTransform::CAngle fovAngle = m_pCameraComponent->GetFieldOfView();
+
 	if (fovAngle != m_desiredFOV)
 	{
 		float currentFOV = fovAngle.ToDegrees();
-		currentFOV += 1.0f;
-		//float desiredFOV = m_desiredFOV.ToDegrees();
-		CryTransform::CAngle curr = CryTransform::CAngle::FromDegrees(currentFOV);
+		float desiredFOV = m_desiredFOV.ToDegrees();
 
-		m_pCameraComponent->SetFieldOfView(curr);
+		// Calculate the FOV change based on the change rate
+		float fovChange = FOV_CHANGE_RATE * frametime;
+
+		// Ensure the FOV change does not exceed the difference between current and desired FOV
+		fovChange = std::min(fovChange, std::abs(desiredFOV - currentFOV));
+
+		// Update the current FOV based on the desired direction
+		if (desiredFOV > currentFOV)
+		{
+			currentFOV += fovChange;
+		}
+		else
+		{
+			currentFOV -= fovChange;
+		}
+
+		// Set the new FOV
+		CryTransform::CAngle newFOV = CryTransform::CAngle::FromDegrees(currentFOV);
+		m_pCameraComponent->SetFieldOfView(newFOV);
 	}
 }
 
