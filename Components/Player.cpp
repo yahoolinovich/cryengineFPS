@@ -493,7 +493,12 @@ void CPlayerComponent::UpdateCamera(float frametime)
 
 	if (wallrunning)
 	{
-		finalCamMatrix.SetRotation33(Matrix33::CreateRotationY(m_wallrunYaw));
+		Quat yawRotation = Quat::CreateRotationY(m_wallrunYaw);
+		Quat pitchRotation = Quat::CreateRotationX(m_currentPitch);
+
+		Quat combinedRotation = yawRotation * pitchRotation;
+
+		finalCamMatrix.SetRotation33(Matrix33(combinedRotation));
 	}
 	else
 	{
