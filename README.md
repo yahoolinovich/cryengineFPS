@@ -1,6 +1,6 @@
 # cryengineFPS
 
-A personal FPS project in cryEngine. I'm currently working on a momentum based system with wallrunning.
+A personal FPS project in cryEngine. I'm currently working on a First Person movement system with wallrunning.
 
 Update June 22:
 
