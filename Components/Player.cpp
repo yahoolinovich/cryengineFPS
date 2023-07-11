@@ -129,14 +129,14 @@ void CPlayerComponent::InitializeInput()
 	m_pInputComponent->RegisterAction("player", "moveleft", [this](int activationMode, float value) {m_movementDelta.x = -value; });
 	m_pInputComponent->BindAction("player", "moveleft", eAID_KeyboardMouse, eKI_A);
 
-	m_pInputComponent->RegisterAction("player", "sprint", [this](int activationMode, float value) 
+	m_pInputComponent->RegisterAction("player", "sprint", [this](int activationMode, float value)
 		{
 			if (activationMode == (int)eAAM_OnPress && m_currentStance == EPlayerStance::Standing)
-			{ 
+			{
 				m_currentPlayerState = EPlayerState::Sprinting;
 			}
 			else if (activationMode == eAAM_OnRelease)
-			{ 
+			{
 				m_currentPlayerState = EPlayerState::Walking;
 			}
 		});
@@ -145,7 +145,7 @@ void CPlayerComponent::InitializeInput()
 	m_pInputComponent->RegisterAction("player", "jump", [this](int activationMode, float value)
 		{
 			if (activationMode == eAAM_OnPress && canJump)
-			{	
+			{
 				if (wallrunning)
 				{
 					canWallrun = false;
@@ -153,11 +153,11 @@ void CPlayerComponent::InitializeInput()
 					Vec3 forceApply = (Vec3(0.0f, 0.0f, m_walljumpheight)) + m_wallNormal * m_walljumpside;
 					m_pCharacterController->AddVelocity(forceApply);
 				}
-				else { 
-					m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight)); 
+				else {
+					m_pCharacterController->AddVelocity(Vec3(0.0f, 0.0f, m_jumpheight));
 				}
 			}
-			
+
 		});
 	m_pInputComponent->BindAction("player", "jump", eAID_KeyboardMouse, eKI_Space);
 
@@ -308,7 +308,7 @@ bool CPlayerComponent::IsCapsuleIntersectingGeometry(const primitives::capsule& 
 	intersectionParams.bSweepTest = false;
 	pwiParams.pip = &intersectionParams;
 
-	const int contactCount = static_cast<int>(gEnv->pPhysicalWorld -> PrimitiveWorldIntersection(pwiParams));
+	const int contactCount = static_cast<int>(gEnv->pPhysicalWorld->PrimitiveWorldIntersection(pwiParams));
 	return contactCount > 0;
 }
 
@@ -396,7 +396,7 @@ void CPlayerComponent::IsWall()
 				Vec3 surfaceNormal = right_hit.n;
 				Vec3 upwardDirection(0.0f, 0.0f, 1.0f);
 				Vec3 surfaceForward = surfaceNormal.Cross(upwardDirection);
-				
+
 				Vec3 wallForce = -surfaceNormal * 2.0f;
 				Vec3 desiredVelocity = (surfaceForward.GetNormalized() * m_runSpeed) + wallForce;
 
@@ -417,7 +417,7 @@ void CPlayerComponent::IsWall()
 		m_wallrunTimer += frametime;
 		if (m_wallrunTimer >= m_wallrunCooldown)
 		{
-			canWallrun = true;  // Cooldown period over, allow wallrunning again
+			canWallrun = true;
 		}
 	}
 }
@@ -431,13 +431,10 @@ void CPlayerComponent::TransitionFOV()
 		float currentFOV = fovAngle.ToDegrees();
 		float desiredFOV = m_desiredFOV.ToDegrees();
 
-		// Calculate the FOV change based on the change rate
 		float fovChange = FOV_CHANGE_RATE * frametime;
 
-		// Ensure the FOV change does not exceed the difference between current and desired FOV
 		fovChange = std::min(fovChange, std::abs(desiredFOV - currentFOV));
 
-		// Update the current FOV based on the desired direction
 		if (desiredFOV > currentFOV)
 		{
 			currentFOV += fovChange;
@@ -447,7 +444,6 @@ void CPlayerComponent::TransitionFOV()
 			currentFOV -= fovChange;
 		}
 
-		// Set the new FOV
 		CryTransform::CAngle newFOV = CryTransform::CAngle::FromDegrees(currentFOV);
 		m_pCameraComponent->SetFieldOfView(newFOV);
 	}
@@ -460,9 +456,9 @@ void CPlayerComponent::onGroundCollision()
 		canDoubleJump = true;
 	}
 	else if (!m_pCharacterController->IsOnGround() && !wallrunning) {
-			canJump = false;
+		canJump = false;
 	}
-	
+
 }
 
 
@@ -491,18 +487,35 @@ void CPlayerComponent::UpdateCamera(float frametime)
 
 	finalCamMatrix.SetTranslation(currentCameraOffset);
 
+	const float yawChangeSpeed = 2.0f;
+
 	if (wallrunning)
 	{
-		Quat yawRotation = Quat::CreateRotationY(m_wallrunYaw);
-		Quat pitchRotation = Quat::CreateRotationX(m_currentPitch);
 
-		Quat combinedRotation = yawRotation * pitchRotation;
+		if (m_yaw < m_wallrunYaw && m_wallrunYaw > 0)
+		{
+			m_yaw = std::min(m_yaw + yawChangeSpeed * frametime, m_wallrunYaw);
+		}
+		else if (m_yaw > m_wallrunYaw && m_wallrunYaw < 0)
+		{
+			m_yaw = std::max(m_yaw - yawChangeSpeed * frametime, m_wallrunYaw);
+		}
+	}
+	else {
+		if (m_wallrunYaw > 0)
+		{
+			m_yaw = std::max(m_yaw - yawChangeSpeed * frametime, 0.0f);
+		}
+		else if (m_wallrunYaw < 0)
+		{
+			m_yaw = std::min(m_yaw + yawChangeSpeed * frametime, 0.0f);
+		}
+	}
+	Quat yawRotation = Quat::CreateRotationY(m_yaw);
+	Quat pitchRotation = Quat::CreateRotationX(m_currentPitch);
 
-		finalCamMatrix.SetRotation33(Matrix33(combinedRotation));
-	}
-	else
-	{
-		finalCamMatrix.SetRotation33(Matrix33::CreateRotationX(m_currentPitch));
-	}
+	Quat combinedRotation = yawRotation * pitchRotation;
+
+	finalCamMatrix.SetRotation33(Matrix33(combinedRotation));
 	m_pCameraComponent->SetTransformMatrix(finalCamMatrix);
 }
