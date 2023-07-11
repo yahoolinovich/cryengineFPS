@@ -83,7 +83,7 @@ protected:
 	void Reset();
 	void RecenterCollider();
 	void InitializeInput();
-	
+
 
 	void UpdateMovement();
 	void UpdateRotation();
@@ -99,7 +99,7 @@ protected:
 	bool m_isMovingForward = false;
 	bool canWallrun = false;
 
-	
+
 
 private:
 	Cry::DefaultComponents::CCameraComponent* m_pCameraComponent;
@@ -139,6 +139,7 @@ private:
 	float m_wallrunCooldown = 0.2f;
 	float m_wallrunTimer = 0.0f;
 	float m_wallrunYaw;
+	float m_yaw = 0.0f;
 
 	float m_walkSpeed;
 	float m_runSpeed;
