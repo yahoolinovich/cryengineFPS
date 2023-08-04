@@ -1,6 +1,6 @@
 # cryengineFPS
 
-A personal FPS project in cryEngine. I'm currently working on a First Person movement system with wallrunning.
+A personal FPS project in cryEngine.
 Wallrunning is fully implemented with proper walljumping, camera FOV and yaw effects.
 
 
